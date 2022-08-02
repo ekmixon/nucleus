@@ -58,10 +58,7 @@ def find_destination(is_user):
   """Returns the directory we are supposed to install into."""
   install_cmd = dist_install.install(dist.Distribution())
   install_cmd.finalize_options()
-  if is_user:
-    return install_cmd.install_usersite
-  else:
-    return install_cmd.install_platlib
+  return install_cmd.install_usersite if is_user else install_cmd.install_platlib
 
 
 def copy_egg_info(dest_dir):
@@ -111,15 +108,16 @@ def main():
         sys.exit(1)
 
     print('Removing old protobuf files')
-    os.system('rm -fR ' + destination + '/google/protobuf')
+    os.system(f'rm -fR {destination}/google/protobuf')
 
-    print('Installing Nucleus to ' + destination
-          + ' with record file at ' + record_file)
-    os.system('cp -R -v google nucleus ' + destination
-              + " | awk '{print substr($3,2,length($3)-2)}' > " + record_file)
+    print(((f'Installing Nucleus to {destination}' + ' with record file at ') +
+           record_file))
+    os.system(
+        ((f'cp -R -v google nucleus {destination}' +
+          " | awk '{print substr($3,2,length($3)-2)}' > ") + record_file))
     # Append the .egg-info directory (must include trailing '/') to the record.
-    dest_egg_dir = os.path.join(destination, _EGG_DIR_BASENAME) + '/'
-    os.system('echo ' + dest_egg_dir + ' >> ' + record_file)
+    dest_egg_dir = f'{os.path.join(destination, _EGG_DIR_BASENAME)}/'
+    os.system(f'echo {dest_egg_dir} >> {record_file}')
     # End by copying the .egg-info directory to the destination.
     sys.exit(copy_egg_info(dest_egg_dir))
 

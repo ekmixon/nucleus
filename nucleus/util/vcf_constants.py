@@ -245,10 +245,12 @@ def _get_reserved_field(field_id, reserved_fields):
   Raises:
     ValueError: `field_id` is not a known reserved field.
   """
-  matching_fields = [field for field in reserved_fields if field.id == field_id]
-  if not matching_fields:
-    raise ValueError('No reserved field with id `{}`'.format(field_id))
-  return matching_fields[0]
+  if matching_fields := [
+      field for field in reserved_fields if field.id == field_id
+  ]:
+    return matching_fields[0]
+  else:
+    raise ValueError(f'No reserved field with id `{field_id}`')
 
 
 def reserved_filter_field(field_id):
@@ -279,8 +281,8 @@ def create_get_fn(value_type, number):
     a list of typed values or a single typed value, depending on the expected
     number of values returned.
   """
-  is_single_field = (number == '0' or number == '1')
-  if value_type == CHARACTER_TYPE or value_type == STRING_TYPE:
+  is_single_field = number in ['0', '1']
+  if value_type in [CHARACTER_TYPE, STRING_TYPE]:
     return functools.partial(
         struct_utils.get_string_field, is_single_field=is_single_field)
   elif value_type == INTEGER_TYPE:
@@ -293,7 +295,7 @@ def create_get_fn(value_type, number):
     return functools.partial(
         struct_utils.get_bool_field, is_single_field=is_single_field)
   else:
-    raise ValueError('Invalid value_type: {}'.format(value_type))
+    raise ValueError(f'Invalid value_type: {value_type}')
 
 
 # Map from INFO field name to the function used to set struct_pb2.Value elements
@@ -341,7 +343,7 @@ def reserved_info_field_set_fn(field_name):
   try:
     return RESERVED_INFO_FIELD_SET_FNS[field_name]
   except KeyError:
-    raise ValueError('Unknown reserved INFO field: {}'.format(field_name))
+    raise ValueError(f'Unknown reserved INFO field: {field_name}')
 
 
 def reserved_info_field_get_fn(field_name):
@@ -360,8 +362,7 @@ def reserved_info_field_get_fn(field_name):
   try:
     return RESERVED_INFO_FIELD_GET_FNS[field_name]
   except KeyError:
-    raise ValueError(
-        'Unknown reserved INFO field to get: {}'.format(field_name))
+    raise ValueError(f'Unknown reserved INFO field to get: {field_name}')
 
 
 def reserved_format_field_set_fn(field_name):
@@ -380,7 +381,7 @@ def reserved_format_field_set_fn(field_name):
   try:
     return RESERVED_FORMAT_FIELD_SET_FNS[field_name]
   except KeyError:
-    raise ValueError('Unknown reserved FORMAT field: {}'.format(field_name))
+    raise ValueError(f'Unknown reserved FORMAT field: {field_name}')
 
 
 def reserved_format_field_get_fn(field_name):
@@ -399,5 +400,4 @@ def reserved_format_field_get_fn(field_name):
   try:
     return RESERVED_FORMAT_FIELD_GET_FNS[field_name]
   except KeyError:
-    raise ValueError(
-        'Unknown reserved FORMAT field to get: {}'.format(field_name))
+    raise ValueError(f'Unknown reserved FORMAT field to get: {field_name}')

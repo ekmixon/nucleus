@@ -96,7 +96,7 @@ class VisTest(parameterized.TestCase):
     output = vis.split_3d_array_into_channels(arr)
     self.assertLen(output, input_shape[2])
     for i in range(input_shape[2]):
-      self.assertEqual(output[i].shape, arr.shape[0:2])
+      self.assertEqual(output[i].shape, arr.shape[:2])
       self.assertTrue((output[i] == arr[:, :, i]).all())
 
   def test_channels_from_example(self):

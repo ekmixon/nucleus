@@ -57,7 +57,7 @@ class FastaReader(genomics_reader.DispatchingGenomicsReader):
   """Class for reading (name, bases) tuples from FASTA files."""
 
   def _native_reader(self, input_path, **kwargs):
-    fai_path = input_path + '.fai'
+    fai_path = f'{input_path}.fai'
     if gfile.Exists(fai_path):
       return IndexedFastaReader(input_path, **kwargs)
     return UnindexedFastaReader(input_path, **kwargs)
@@ -84,7 +84,7 @@ class IndexedFastaReader(genomics_reader.GenomicsReader):
     options = fasta_pb2.FastaReaderOptions(keep_true_case=keep_true_case)
 
     fasta_path = input_path
-    fai_path = fasta_path + '.fai'
+    fai_path = f'{fasta_path}.fai'
     if cache_size is None:
       # Use the C++-defined default cache size.
       self._reader = reference.IndexedFastaReader.from_file(
@@ -194,11 +194,9 @@ class InMemoryFastaReader(genomics_reader.GenomicsReader):
     contigs = []
     for i, (contig_name, start, bases) in enumerate(chromosomes):
       if start < 0:
-        raise ValueError('start={} must be >= for chromosome={}'.format(
-            start, contig_name))
+        raise ValueError(f'start={start} must be >= for chromosome={contig_name}')
       if not bases:
-        raise ValueError(
-            'Bases must contain at least one base, but got "{}"'.format(bases))
+        raise ValueError(f'Bases must contain at least one base, but got "{bases}"')
 
       end = start + len(bases)
       ref_seqs.append(reference_pb2.ReferenceSequence(
@@ -236,7 +234,7 @@ class InMemoryFastaReader(genomics_reader.GenomicsReader):
     def _format_refseq(refseq):
       bases = refseq.bases
       if len(bases) >= 50:
-        bases = bases[0:50] + '...'
+        bases = bases[:50] + '...'
       return 'Contig(chrom={} start={}, end={}, bases={})'.format(
           refseq.region.reference_name, refseq.region.start, refseq.region.end,
           bases)

@@ -277,7 +277,7 @@ def make_read(bases,
   if quals and len(bases) != len(quals):
     raise ValueError('Incompatable bases and quals', bases, quals)
   read = reads_pb2.Read(
-      fragment_name=name if name else 'read_' + str(make_read.counter),
+      fragment_name=name or f'read_{str(make_read.counter)}',
       proper_placement=True,
       read_number=1,
       number_reads=2,
@@ -286,7 +286,9 @@ def make_read(bases,
       alignment=reads_pb2.LinearAlignment(
           position=position_pb2.Position(reference_name=chrom, position=start),
           mapping_quality=mapq,
-          cigar=_cigar.to_cigar_units(cigar) if cigar else []))
+          cigar=_cigar.to_cigar_units(cigar) if cigar else [],
+      ),
+  )
   make_read.counter += 1
   return read
 make_read.counter = 0
@@ -346,8 +348,9 @@ def assert_not_called_workaround(mock):
     AssertionError: mock has been called.
   """
   if mock.call_count != 0:
-    raise AssertionError("Expected no calls to '{}' but was called {} times"
-                         .format(mock.name, mock.call_count))
+    raise AssertionError(
+        f"Expected no calls to '{mock.name}' but was called {mock.call_count} times"
+    )
 
 
 # TODO(b/63955799): remove and replace uses when bug is fixed in mock.
@@ -365,5 +368,5 @@ def assert_called_once_workaround(mock):
   """
   if mock.call_count != 1:
     raise AssertionError(
-        "Expected exactly one call to '{}' but was called {} times".format(
-            mock.name, mock.call_count))
+        f"Expected exactly one call to '{mock.name}' but was called {mock.call_count} times"
+    )

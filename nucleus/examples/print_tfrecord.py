@@ -52,15 +52,15 @@ PROTO_DB = {
 
 def main(argv):
   if len(argv) != 3:
-    print('Usage: {} <filename> <proto_name>\n'.format(argv[0]))
+    print(f'Usage: {argv[0]} <filename> <proto_name>\n')
     sys.exit(-1)
 
   filename = argv[1]
   proto_name = argv[2]
 
   if proto_name not in PROTO_DB:
-    print('Unknown protocol buffer name {}\n'.format(proto_name))
-    print('Known names are: {}\n'.format(' '.join(PROTO_DB.keys())))
+    print(f'Unknown protocol buffer name {proto_name}\n')
+    print(f"Known names are: {' '.join(PROTO_DB.keys())}\n")
     sys.exit(-1)
 
   proto = PROTO_DB[proto_name]

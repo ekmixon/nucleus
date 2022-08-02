@@ -92,7 +92,7 @@ def get_image_array_from_example(example):
   """
   features = example.features.feature
   img = features['image/encoded'].bytes_list.value[0]
-  shape = features['image/shape'].int64_list.value[0:3]
+  shape = features['image/shape'].int64_list.value[:3]
   return np.frombuffer(img, np.uint8).reshape(shape)
 
 
@@ -197,9 +197,8 @@ def _get_image_type_from_array(arr):
     return 'L'
   else:
     raise ValueError(
-        'Input array must have either 2 dimensions or 3 dimensions where the '
-        'third dimension has 3 channels. i.e. arr.shape is (x,y) or (x,y,3). '
-        'Found shape {}.'.format(arr.shape))
+        f'Input array must have either 2 dimensions or 3 dimensions where the third dimension has 3 channels. i.e. arr.shape is (x,y) or (x,y,3). Found shape {arr.shape}.'
+    )
 
 
 def autoscale_colors_for_png(arr, vmin=None, vmax=None):
@@ -342,7 +341,7 @@ def save_to_png(arr,
     path = '/tmp/tmp.png'
   elif not path.endswith('.png'):
     # Only PNG is supported because JPEG files are unnecessarily 3 times larger.
-    path = '{}.png'.format(path)
+    path = f'{path}.png'
   with gfile.Open(path, 'wb') as fout:
     img.save(fout, format=path.split('.')[-1])
 
@@ -400,12 +399,12 @@ def _deepvariant_channel_names(num_channels):
   """Get DeepVariant channel names for the given number of channels."""
   # Add additional empty labels if there are more channels than expected.
   filler_labels = [
-      'channel {}'.format(i + 1)
+      f'channel {i + 1}'
       for i in range(len(DEEPVARIANT_CHANNEL_NAMES), num_channels)
   ]
   labels = DEEPVARIANT_CHANNEL_NAMES + filler_labels
   # Trim off any extra labels.
-  return labels[0:num_channels]
+  return labels[:num_channels]
 
 
 def draw_deepvariant_pileup(example=None,
@@ -453,8 +452,8 @@ def draw_deepvariant_pileup(example=None,
       labels = ['']  # Creates one midpoint with no label.
   else:
     raise ValueError(
-        "Unrecognized composite_type: {}. Must be None or 'RGB'".format(
-            composite_type))
+        f"Unrecognized composite_type: {composite_type}. Must be None or 'RGB'"
+    )
 
   array_to_png(
       img_array,
@@ -489,8 +488,7 @@ def locus_id_from_variant(variant):
   Returns:
     str.
   """
-  return '{}:{}_{}'.format(variant.reference_name, variant.start,
-                           variant.reference_bases)
+  return f'{variant.reference_name}:{variant.start}_{variant.reference_bases}'
 
 
 def alt_allele_indices_from_example(example):
@@ -556,7 +554,7 @@ def locus_id_with_alt(example):
   variant = variant_from_example(example)
   locus_id = locus_id_from_variant(variant)
   alt = alt_from_example(example)
-  return '{}_{}'.format(locus_id, alt)
+  return f'{locus_id}_{alt}'
 
 
 def label_from_example(example):
@@ -569,8 +567,7 @@ def label_from_example(example):
     integer (0, 1, or 2 for regular DeepVariant examples) or None if the
         example has no label.
   """
-  val = example.features.feature['label'].int64_list.value
-  if val:
+  if val := example.features.feature['label'].int64_list.value:
     return int(val[0])
   else:
     return None
@@ -687,7 +684,7 @@ def binomial_test(k: int, n: int) -> float:
   Returns:
     The p-value for the binomial test.
   """
-  if not k <= n:
+  if k > n:
     raise ValueError('k must be <= n')
   if k == n / 2:
     return 1.0
@@ -696,7 +693,7 @@ def binomial_test(k: int, n: int) -> float:
   # With p=0.5, the distribution is symmetric, allowing this simplification:
   k = min(k, n - k)
   # Add up all the exact probabilities for each scenario more extreme than k.
-  for x in range(0, k + 1):
+  for x in range(k + 1):
     # After python 3.8, the following line can be replaced using math.comb.
     n_choose_x = math.factorial(n) / math.factorial(x) / math.factorial(n - x)
     p_for_i = n_choose_x * (0.5**n)

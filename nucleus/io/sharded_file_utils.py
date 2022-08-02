@@ -66,7 +66,7 @@ def parse_sharded_file_spec(spec):
   # If there's a non-empty suffix, we need to prepend '.' so we get files like
   # foo@20.ext instead of foo@ext. The original C++ parser version has:
   # string ext = StrCat(suff.empty() ? "" : ".", suff);
-  suffix = '.' + m.group(4) if m.group(4) else ''
+  suffix = f'.{m.group(4)}' if m.group(4) else ''
 
   return m.group(2), int(m.group(3)), suffix
 
@@ -90,13 +90,12 @@ def generate_sharded_filenames(spec):
     ShardError: If spec is not a valid sharded file specification.
   """
   basename, num_shards, suffix = parse_sharded_file_spec(spec)
-  files = []
   width = _shard_width(num_shards)
   format_str = '{{0}}-{{1:0{0}}}-of-{{2:0{0}}}{{3}}'.format(width)
-  for i in range(num_shards):
-    files.append(format_str.format(basename, i, num_shards, suffix))
-
-  return files
+  return [
+      format_str.format(basename, i, num_shards, suffix)
+      for i in range(num_shards)
+  ]
 
 
 def glob_list_sharded_file_patterns(comma_separated_patterns, sep=','):
@@ -110,11 +109,11 @@ def glob_list_sharded_file_patterns(comma_separated_patterns, sep=','):
   Returns:
     List of filenames, sorted and dedupped.
   """
-  return sorted(set([
+  return sorted({
       f
       for pattern in comma_separated_patterns.split(sep)
       for f in gfile.Glob(normalize_to_sharded_file_pattern(pattern))
-  ]))
+  })
 
 
 def generate_sharded_file_pattern(basename, num_shards, suffix):
@@ -251,7 +250,7 @@ def maybe_generate_sharded_filenames(filespec):
     TypeError: if filespec is not in valid string_types.
   """
   if not isinstance(filespec, six.string_types):
-    raise TypeError('Invalid filespec: %s' % filespec)
+    raise TypeError(f'Invalid filespec: {filespec}')
   if is_sharded_file_spec(filespec):
     return generate_sharded_filenames(filespec)
   else:

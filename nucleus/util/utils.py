@@ -95,7 +95,7 @@ def reservoir_sample(iterable, k, random=None):
     ValueError: If k is negative.
   """
   if k < 0:
-    raise ValueError('k must be nonnegative, but got {}'.format(k))
+    raise ValueError(f'k must be nonnegative, but got {k}')
   if random is None:
     random = np.random
   sample = []

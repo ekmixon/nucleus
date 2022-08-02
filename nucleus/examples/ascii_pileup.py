@@ -66,7 +66,7 @@ def ascii_pileup(sam_filename, query):
 
 def main(argv):
   if len(argv) != 3:
-    print('Usage: {} <input_sam> <chromosome>:<position>'.format(argv[0]))
+    print(f'Usage: {argv[0]} <input_sam> <chromosome>:<position>')
     return -1
   in_sam = argv[1]
   query = argv[2]

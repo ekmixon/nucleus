@@ -155,8 +155,7 @@ class TFRecordReader(GenomicsReader):
     self.reader = tfrecord_reader.TFRecordReader.from_file(
         input_path, compression_type)
     if self.reader is None:
-      raise IOError(errno.EIO,
-                    'Error trying to open %s for reading' % input_path)
+      raise IOError(errno.EIO, f'Error trying to open {input_path} for reading')
 
   def iterate(self):
     """Returns an iterator for going through all the file's records."""

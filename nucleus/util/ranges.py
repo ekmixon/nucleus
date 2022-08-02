@@ -97,8 +97,7 @@ class RangeSet(object):
     self._by_chr = collections.defaultdict(intervaltree.IntervalTree)
     for i, range_ in enumerate(ranges):
       if not self._is_valid_contig(range_.reference_name):
-        raise ValueError(
-            'Range {} is on an unrecognized contig.'.format(range_))
+        raise ValueError(f'Range {range_} is on an unrecognized contig.')
       self._by_chr[range_.reference_name].addi(range_.start, range_.end, None)
       if not quiet and i > 0 and i % _LOG_EVERY_N_RANGES_IN_RANGESET_INIT == 0:
         # We do our test directly here on i > 0 so we only see the log messages
@@ -249,9 +248,7 @@ class RangeSet(object):
     """
     # pylint: disable=protected-access
     for chrname, chr_intervals in six.iteritems(other._by_chr):
-      # If refname is present in self, difference those two IntervalTrees.
-      self_intervals = self._by_chr.get(chrname, None)
-      if self_intervals:
+      if self_intervals := self._by_chr.get(chrname, None):
         for begin, end, _ in chr_intervals:
           self_intervals.chop(begin, end)
         if self_intervals.is_empty():
@@ -270,10 +267,8 @@ class RangeSet(object):
 
   def variant_overlaps(self, variant, empty_set_return_value=True):
     """Returns True if the variant's range overlaps with any in this set."""
-    if not self:
-      return empty_set_return_value
-    else:
-      return self.overlaps(variant.reference_name, variant.start)
+    return (self.overlaps(variant.reference_name, variant.start)
+            if self else empty_set_return_value)
 
   def overlaps(self, chrom, pos):
     """Returns True if chr:pos overlaps with any range in this RangeSet.
@@ -288,9 +283,7 @@ class RangeSet(object):
       True if chr:pos overlaps with a range.
     """
     chr_ranges = self._by_chr.get(chrom, None)
-    if chr_ranges is None:
-      return False
-    return chr_ranges.overlaps(pos)
+    return False if chr_ranges is None else chr_ranges.overlaps(pos)
 
   def partition(self, max_size):
     """Splits our intervals so that none are larger than max_size.
@@ -316,7 +309,7 @@ class RangeSet(object):
       ValueError: if max_size <= 0.
     """
     if max_size <= 0:
-      raise ValueError('max_size must be > 0: {}'.format(max_size))
+      raise ValueError(f'max_size must be > 0: {max_size}')
 
     for interval in self:
       refname = interval.reference_name
@@ -338,15 +331,10 @@ class RangeSet(object):
     chr_ranges = self._by_chr.get(chrom, None)
     if chr_ranges is None:
       return False
-    # The intervaltree package does the inverse check, i.e. whether ranges
-    # contained in it overlap with the query region. So it returns nothing
-    # when start == end. We by convention want anything overlapping the start
-    # position to still indicate enveloping in this case.
     if start == end:
       return chr_ranges.overlaps(start)
-    else:
-      overlap_set = chr_ranges.overlap(begin=start, end=end)
-      return any(ov.begin <= start and ov.end >= end for ov in overlap_set)
+    overlap_set = chr_ranges.overlap(begin=start, end=end)
+    return any(ov.begin <= start and ov.end >= end for ov in overlap_set)
 
 
 def make_position(chrom, position, reverse_strand=False):
@@ -473,10 +461,8 @@ def from_regions(regions, contig_map=None):
     A Range proto.
   """
   for region in regions:
-    reader = _get_parser_for_file(region)
-    if reader:
-      for elt in reader(region):
-        yield elt
+    if reader := _get_parser_for_file(region):
+      yield from reader(region)
     else:
       yield parse_literal(region, contig_map)
 
@@ -490,10 +476,11 @@ _REGION_FILE_READERS = {
 
 
 def _get_parser_for_file(filename):
-  for reader, exts in six.iteritems(_REGION_FILE_READERS):
-    if any(filename.lower().endswith(ext) for ext in exts):
-      return reader
-  return None
+  return next(
+      (reader for reader, exts in six.iteritems(_REGION_FILE_READERS)
+       if any(filename.lower().endswith(ext) for ext in exts)),
+      None,
+  )
 
 
 def to_literal(range_pb):
@@ -512,8 +499,7 @@ def to_literal(range_pb):
   Returns:
     A string representation of the Range.
   """
-  return '{}:{}-{}'.format(range_pb.reference_name, range_pb.start + 1,
-                           range_pb.end)
+  return f'{range_pb.reference_name}:{range_pb.start + 1}-{range_pb.end}'
 
 
 def parse_literal(region_literal, contig_map=None):
@@ -689,7 +675,7 @@ def expand(region, n_bp, contig_map=None):
     KeyError: contig_map is not None and region.reference_name isn't a key.
   """
   if n_bp < 0:
-    raise ValueError('n_bp must be >= 0 but got {}'.format(n_bp))
+    raise ValueError(f'n_bp must be >= 0 but got {n_bp}')
 
   new_start = max(region.start - n_bp, 0)
   new_end = region.end + n_bp

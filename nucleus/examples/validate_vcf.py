@@ -50,13 +50,15 @@ def validate_variant(ref_reader, variant):
   try:
     ref_bases = ref_reader.query(var_range)
   except ValueError:
-    print('Reference does not cover range {}: {}-{}'.format(
-        var_range.reference_name, var_range.start, var_range.end))
+    print(
+        f'Reference does not cover range {var_range.reference_name}: {var_range.start}-{var_range.end}'
+    )
     sys.exit(-1)
 
   if ref_bases != variant.reference_bases:
-    print('In range {}:{}-{} '.format(
-        var_range.reference_name, var_range.start, var_range.end))
+    print(
+        f'In range {var_range.reference_name}:{var_range.start}-{var_range.end} '
+    )
     print('Reference says ', ref_bases)
     print('But variant says ', variant.reference_bases)
     sys.exit(-1)
@@ -64,7 +66,7 @@ def validate_variant(ref_reader, variant):
 
 def main(argv):
   if len(argv) != 3:
-    print('Usage: {} <input_ref> <input_vcf>'.format(argv[0]))
+    print(f'Usage: {argv[0]} <input_ref> <input_vcf>')
     sys.exit(-1)
   in_ref = argv[1]
   in_vcf = argv[2]

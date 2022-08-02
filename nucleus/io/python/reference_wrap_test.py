@@ -35,7 +35,7 @@ class WrapReferenceTest(parameterized.TestCase):
     chr_names = ['chrM', 'chr1', 'chr2']
     chr_lengths = [100, 76, 121]
     fasta = test_utils.genomics_core_testdata(fasta_filename)
-    fai = test_utils.genomics_core_testdata(fasta_filename + '.fai')
+    fai = test_utils.genomics_core_testdata(f'{fasta_filename}.fai')
     options = fasta_pb2.FastaReaderOptions(keep_true_case=keep_true_case)
     with reference.IndexedFastaReader.from_file(fasta, fai, options) as ref:
       self.assertEqual(ref.contig_names, chr_names)
@@ -52,7 +52,7 @@ class WrapReferenceTest(parameterized.TestCase):
       for contig in ref.contigs:
         self.assertEqual(ref.contig(contig.name), contig)
         self.assertTrue(ref.has_contig(contig.name))
-        self.assertFalse(ref.has_contig(contig.name + '.unknown'))
+        self.assertFalse(ref.has_contig(f'{contig.name}.unknown'))
 
   @parameterized.parameters(
       # The fasta and the FAI are both missing.
@@ -67,8 +67,7 @@ class WrapReferenceTest(parameterized.TestCase):
     fasta = test_utils.genomics_core_testdata(fasta_filename)
     fai = test_utils.genomics_core_testdata(fai_filename)
     # TODO(b/196638558): OpError exception not propagated.
-    with self.assertRaisesRegexp(
-        ValueError, 'could not load fasta and/or fai for fasta ' + fasta):
+    with self.assertRaisesRegexp(ValueError, f'could not load fasta and/or fai for fasta {fasta}'):
       reference.IndexedFastaReader.from_file(fasta, fai,
                                              fasta_pb2.FastaReaderOptions())
 

@@ -171,7 +171,7 @@ class SamReaderTests(parameterized.TestCase):
       self.assertEqual(reads[0].alignment.position.position, 0)
     except ValueError as e:
       if 'Failed to parse SAM record' not in str(e):
-        self.fail('Parsing failed but unexpected exception was seen: ' + str(e))
+        self.fail(f'Parsing failed but unexpected exception was seen: {str(e)}')
 
   def _parse_read_with_aux_tags(self, tag_string):
     # Minimal header line to create a valid SAM file.
@@ -187,9 +187,10 @@ class SamReaderTests(parameterized.TestCase):
 
   def assertInfoMapEqual(self, info_map, expected_info):
     self.assertCountEqual(
-        info_map.keys(), expected_info.keys(),
-        'info has {} keys but we expected {}'.format(info_map.keys(),
-                                                     expected_info.keys()))
+        info_map.keys(),
+        expected_info.keys(),
+        f'info has {info_map.keys()} keys but we expected {expected_info.keys()}',
+    )
     for key, expected_values in expected_info.items():
       if not isinstance(expected_values, list):
         expected_values = [expected_values]
@@ -202,7 +203,7 @@ class SamReaderTests(parameterized.TestCase):
         elif isinstance(expected_value, str):
           self.assertEqual(actual_value.string_value, expected_value)
         else:
-          self.fail('Unsupported expected_value type {}'.format(expected_value))
+          self.fail(f'Unsupported expected_value type {expected_value}')
 
   @parameterized.parameters(
       # These expected counts are deterministic because we always set the random
@@ -227,7 +228,7 @@ class SamReaderTests(parameterized.TestCase):
       elif method == 'query':
         reads_iter = reader.query(ranges.parse_literal(maybe_range))
       else:
-        self.fail('Unexpected method ' + str(method))
+        self.fail(f'Unexpected method {str(method)}')
       self.assertEqual(test_utils.iterable_len(reads_iter), expected_n_reads)
 
 
@@ -346,9 +347,7 @@ class ReadWriterTests(parameterized.TestCase):
   def test_roundtrip_cram_writer(self, filename, has_embedded_ref):
     output_path = test_utils.test_tmpfile(filename)
     writer_ref_path = test_utils.genomics_core_testdata('test.fasta')
-    reader_ref_path = ''
-    if not has_embedded_ref:
-      reader_ref_path = writer_ref_path
+    reader_ref_path = '' if has_embedded_ref else writer_ref_path
     original_reader = sam.SamReader(
         test_utils.genomics_core_testdata(filename), ref_path=reader_ref_path)
     original_records = list(original_reader.iterate())
