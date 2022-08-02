@@ -47,14 +47,14 @@ def get_variant_ad(variant):
 
 def main(argv):
   if len(argv) != 3:
-    print('Usage: %s <input_vcf> <output_vcf>' % argv[0])
+    print(f'Usage: {argv[0]} <input_vcf> <output_vcf>')
     sys.exit(-1)
   in_vcf = argv[1]
   out_vcf = argv[2]
 
   with vcf.VcfReader(in_vcf) as reader:
     if 'AD' in [info.id for info in reader.header.infos]:
-      print('%s already contains AD field.' % in_vcf)
+      print(f'{in_vcf} already contains AD field.')
       sys.exit(-1)
     out_header = reader.header
     out_header.infos.extend([vcf_constants.reserved_info_field('AD')])

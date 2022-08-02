@@ -102,5 +102,6 @@ def reverse_complement(sequence, complement_dict=None):
   try:
     return ''.join(complement_dict[nt] for nt in reversed(sequence))
   except KeyError:
-    raise Error('Unknown base in {}, cannot reverse complement using {}'.format(
-        sequence, str(complement_dict)))
+    raise Error(
+        f'Unknown base in {sequence}, cannot reverse complement using {str(complement_dict)}'
+    )

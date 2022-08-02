@@ -178,7 +178,8 @@ class RangesTests(parameterized.TestCase):
       for eix in range(six, end_ix + 1):
         self.assertTrue(
             range_set.envelops('chr1', six, eix),
-            'chr1 {} {} not enveloped'.format(six, eix))
+            f'chr1 {six} {eix} not enveloped',
+        )
 
     # Bridging across two ranges is not enveloped.
     for six in range(start_ix, end_ix):
@@ -224,12 +225,9 @@ class RangesTests(parameterized.TestCase):
   @parameterized.parameters(['chr1', '1', 'MT', 'chrM', 'chrX', 'X', 'Y'])
   def test_parse_literal_chromosomes(self, chrom):
     self.assertEqual(
-        ranges.parse_literal(chrom + ':1-20'), ranges.make_range(chrom, 0, 20))
+        ranges.parse_literal(f'{chrom}:1-20'), ranges.make_range(chrom, 0, 20))
 
-  @parameterized.parameters(
-      ('chr1:{}-{}'.format(start_str, end_str), start_val, end_val)
-      for start_str, start_val in [('12', 11), ('1,234', 1233)]
-      for end_str, end_val in [('56789', 56789), ('56,789', 56789)])
+  @parameterized.parameters((f'chr1:{start_str}-{end_str}', start_val, end_val) for start_str, start_val in [('12', 11), ('1,234', 1233)] for end_str, end_val in [('56789', 56789), ('56,789', 56789)])
   def test_parse_literal_numerics(self, literal, start_val, end_val):
     self.assertEqual(
         ranges.parse_literal(literal),
@@ -500,17 +498,17 @@ class RangesTests(parameterized.TestCase):
     # determined by pos_in_fasta, start, end.
     range_set_with_contigs = ranges.RangeSet(unsorted, contigs)
     self.assertEqual(
-        ranges.parse_literals(
-            ['c:20', 'a:5', 'a:10', 'b:10-15', 'b:30']),
-        [range_ for range_ in range_set_with_contigs])
+        ranges.parse_literals(['c:20', 'a:5', 'a:10', 'b:10-15', 'b:30']),
+        list(range_set_with_contigs),
+    )
 
     # For a RangeSet instantiated *without* a contig map, the iteration order
     # is determined by reference_name, start, end.
     range_set_no_contigs = ranges.RangeSet(unsorted)
     self.assertEqual(
-        ranges.parse_literals(
-            ['a:5', 'a:10', 'b:10-15', 'b:30', 'c:20']),
-        [range_ for range_ in range_set_no_contigs])
+        ranges.parse_literals(['a:5', 'a:10', 'b:10-15', 'b:30', 'c:20']),
+        list(range_set_no_contigs),
+    )
 
   def test_sort_ranges(self):
     contigs = [

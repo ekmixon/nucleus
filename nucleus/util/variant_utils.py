@@ -42,7 +42,7 @@ def only_call(variant):
     ValueError: Not exactly one VariantCall is in the variant.
   """
   if len(variant.calls) != 1:
-    raise ValueError('Expected exactly one VariantCall in {}'.format(variant))
+    raise ValueError(f'Expected exactly one VariantCall in {variant}')
   return variant.calls[0]
 
 
@@ -171,7 +171,7 @@ def format_position(variant):
   Returns:
     A string chr:start + 1 (as start is zero-based).
   """
-  return '{}:{}'.format(variant.reference_name, variant.start + 1)
+  return f'{variant.reference_name}:{variant.start + 1}'
 
 
 def _non_excluded_alts(alts, exclude_alleles=None):
@@ -229,10 +229,8 @@ def is_indel(variant, exclude_alleles=None):
     occurs at this site.
   """
   relevant_alts = _non_excluded_alts(variant.alternate_bases, exclude_alleles)
-  if not relevant_alts:
-    return False
-  return (len(variant.reference_bases) > 1 or
-          any(len(alt) > 1 for alt in relevant_alts))
+  return ((len(variant.reference_bases) > 1 or any(
+      len(alt) > 1 for alt in relevant_alts)) if relevant_alts else False)
 
 
 def is_biallelic(variant, exclude_alleles=None):
@@ -274,10 +272,9 @@ def variant_is_insertion(variant, exclude_alleles=None):
     True if variant has at least one alt allele and all alts are insertions.
   """
   relevant_alts = _non_excluded_alts(variant.alternate_bases, exclude_alleles)
-  if not relevant_alts:
-    return False
-  return all(
-      is_insertion(variant.reference_bases, alt) for alt in relevant_alts)
+  return (all(
+      is_insertion(variant.reference_bases, alt)
+      for alt in relevant_alts) if relevant_alts else False)
 
 
 def variant_is_deletion(variant, exclude_alleles=None):
@@ -291,9 +288,9 @@ def variant_is_deletion(variant, exclude_alleles=None):
     True if variant has at least one alt allele and all alts are deletions.
   """
   relevant_alts = _non_excluded_alts(variant.alternate_bases, exclude_alleles)
-  if not relevant_alts:
-    return False
-  return all(is_deletion(variant.reference_bases, alt) for alt in relevant_alts)
+  return (all(
+      is_deletion(variant.reference_bases, alt)
+      for alt in relevant_alts) if relevant_alts else False)
 
 
 def is_ref(variant, exclude_alleles=None):
@@ -513,7 +510,7 @@ def simplify_alleles(*alleles):
     common_postfix_len = i
 
   if common_postfix_len:
-    return tuple(a[0:-common_postfix_len] for a in alleles)
+    return tuple(a[:-common_postfix_len] for a in alleles)
   else:
     # Fast path for the case where there's no shared postfix.
     return alleles
@@ -671,16 +668,15 @@ def genotype_as_alleles(variant, call_ix=0):
   """
   if not 0 <= call_ix < len(variant.calls):
     raise ValueError(
-        'Unsupported: requesting call {} in variant with {} calls: {}'.format(
-            call_ix, len(variant.calls), variant))
-  else:
-    # Genotypes are encoded as integers, where 0 is the reference allele,
-    # indices > 0 refer to alt alleles, and the no-call genotypes is encoded
-    # as -1 in the genotypes. This code relies on this encoding to quickly
-    # reference into the alleles by adding 1 to the genotype index.
-    alleles = ([vcf_constants.MISSING_FIELD, variant.reference_bases] +
-               list(variant.alternate_bases))
-    return [alleles[i + 1] for i in variant.calls[call_ix].genotype]
+        f'Unsupported: requesting call {call_ix} in variant with {len(variant.calls)} calls: {variant}'
+    )
+  # Genotypes are encoded as integers, where 0 is the reference allele,
+  # indices > 0 refer to alt alleles, and the no-call genotypes is encoded
+  # as -1 in the genotypes. This code relies on this encoding to quickly
+  # reference into the alleles by adding 1 to the genotype index.
+  alleles = ([vcf_constants.MISSING_FIELD, variant.reference_bases] +
+             list(variant.alternate_bases))
+  return [alleles[i + 1] for i in variant.calls[call_ix].genotype]
 
 
 def unphase_all_genotypes(variant):
@@ -813,8 +809,8 @@ def genotype_likelihood_index(allele_indices):
     return g1 + (g2 * (g2 + 1) // 2)
   else:
     raise NotImplementedError(
-        'Genotype likelihood index only supports haploid and diploid: {}'.
-        format(allele_indices))
+        f'Genotype likelihood index only supports haploid and diploid: {allele_indices}'
+    )
 
 
 def allele_indices_for_genotype_likelihood_index(gl_index, ploidy=2):
@@ -873,8 +869,8 @@ def allele_indices_with_num_alts(variant, num_alts, ploidy=2):
         'allele_indices_with_num_alts only supports diploid.')
   if not 0 <= num_alts <= ploidy:
     raise ValueError(
-        'Invalid number of alternate alleles requested: {} for ploidy {}'.
-        format(num_alts, ploidy))
+        f'Invalid number of alternate alleles requested: {num_alts} for ploidy {ploidy}'
+    )
 
   max_candidate_alt_ix = len(variant.alternate_bases)
   if num_alts == 0:
@@ -937,8 +933,7 @@ def variant_key(variant, sort_alleles=True):
   alts = variant.alternate_bases
   if sort_alleles:
     alts = sorted(alts)
-  return '{}:{}:{}->{}'.format(variant.reference_name, variant.start + 1,
-                               variant.reference_bases, '/'.join(alts))
+  return f"{variant.reference_name}:{variant.start + 1}:{variant.reference_bases}->{'/'.join(alts)}"
 
 
 def sorted_variants(variants):

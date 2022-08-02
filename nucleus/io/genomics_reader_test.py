@@ -33,8 +33,7 @@ class DummyReader(genomics_reader.GenomicsReader):
     super(DummyReader, self).__init__()
 
   def iterate(self):
-    for i in range(self.limit):
-      yield i
+    yield from range(self.limit)
 
   def query(self, region):
     raise NotImplementedError('Can not query DummyReader')

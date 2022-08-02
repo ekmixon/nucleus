@@ -27,7 +27,7 @@ from nucleus.util import variant_utils
 
 def main(argv):
   if len(argv) != 2:
-    print('Usage: {} <input_vcf>'.format(argv[0]))
+    print(f'Usage: {argv[0]} <input_vcf>')
     sys.exit(-1)
   in_vcf = argv[1]
 
@@ -41,12 +41,12 @@ def main(argv):
       by_type[variant_utils.variant_type(variant)] += 1
       by_ref[variant.reference_name] += 1
 
-  print('# variants: {}'.format(total))
-  print('# ref variants: {}'.format(by_type[variant_utils.VariantType.ref]))
-  print('# SNP variants: {}'.format(by_type[variant_utils.VariantType.snp]))
-  print('# indel variants: {}'.format(by_type[variant_utils.VariantType.indel]))
+  print(f'# variants: {total}')
+  print(f'# ref variants: {by_type[variant_utils.VariantType.ref]}')
+  print(f'# SNP variants: {by_type[variant_utils.VariantType.snp]}')
+  print(f'# indel variants: {by_type[variant_utils.VariantType.indel]}')
   for k, v in sorted(by_ref.items()):
-    print('# variants in {}: {}'.format(k, v))
+    print(f'# variants in {k}: {v}')
 
 
 if __name__ == '__main__':

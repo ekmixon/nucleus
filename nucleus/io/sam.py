@@ -195,11 +195,11 @@ class NativeSamReader(genomics_reader.GenomicsReader):
 
       # We make 0 be a valid value that means "keep all reads" so that proto
       # defaults (=0) do not omit all reads.
-      if downsample_fraction is not None and downsample_fraction != 0:
-        if not 0.0 < downsample_fraction <= 1.0:
-          raise ValueError(
-              'downsample_fraction must be in the interval (0.0, 1.0]',
-              downsample_fraction)
+      if (downsample_fraction is not None and downsample_fraction != 0
+          and not 0.0 < downsample_fraction <= 1.0):
+        raise ValueError(
+            'downsample_fraction must be in the interval (0.0, 1.0]',
+            downsample_fraction)
 
       if random_seed is None:
         # Fixed random seed produced with 'od -vAn -N4 -tu4 < /dev/urandom'.

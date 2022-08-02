@@ -114,7 +114,7 @@ def parse_cigar_string(cigar_str):
   if not cigar_str:
     raise ValueError('cigar_str cannot be empty')
   if not VALID_CIGAR_RE.match(cigar_str):
-    raise ValueError('Malformed CIGAR string {}'.format(cigar_str))
+    raise ValueError(f'Malformed CIGAR string {cigar_str}')
   parts = CIGAR_STR_SPLITTER_RE.finditer(cigar_str)
   return [to_cigar_unit(part.group(1)) for part in parts]
 
@@ -169,9 +169,9 @@ def to_cigar_unit(source):
     l = int(l)
     if l < 1:
       raise ValueError('Length must be >= 1', l)
-    return cigar_pb2.CigarUnit(operation=op, operation_length=int(l))
+    return cigar_pb2.CigarUnit(operation=op, operation_length=l)
   except (KeyError, IndexError):
-    raise ValueError('Failed to convert {} into a CigarUnit'.format(source))
+    raise ValueError(f'Failed to convert {source} into a CigarUnit')
 
 
 def to_cigar_units(source):

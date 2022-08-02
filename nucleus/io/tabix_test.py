@@ -37,8 +37,8 @@ class TabixTest(absltest.TestCase):
     self.input_file = test_utils.genomics_core_testdata('test_samples.vcf.gz')
     self.output_file = test_utils.test_tmpfile('test_samples.vcf.gz')
     shutil.copyfile(self.input_file, self.output_file)
-    self.tbx_index_file = self.output_file + '.tbi'
-    self.csi_index_file = self.output_file + '.csi'
+    self.tbx_index_file = f'{self.output_file}.tbi'
+    self.csi_index_file = f'{self.output_file}.csi'
 
   def tearDown(self):
     super(TabixTest, self).tearDown()

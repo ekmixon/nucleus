@@ -55,7 +55,7 @@ def _is_native_file(filename):
 
 def _filename_pattern(ext):
   """Returns an re matching native or tfrecord files of format `ext`."""
-  return r".*\.{}(\.tfrecord)?(\.gz)?".format(ext)
+  return f".*\.{ext}(\.tfrecord)?(\.gz)?"
 
 
 _FileType = collections.namedtuple(
@@ -170,7 +170,7 @@ def convert(in_filename, out_filename):
 
 def main(argv):
   if len(argv) not in (2, 3):
-    print("Usage: %s <input_filename> [<output_filename>]" % argv[0])
+    print(f"Usage: {argv[0]} <input_filename> [<output_filename>]")
     sys.exit(1)
 
   input_filename = argv[1]

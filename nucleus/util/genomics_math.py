@@ -104,7 +104,7 @@ def perror_to_bounded_log10_perror(perror, min_prob=1.0 - _MAX_CONFIDENCE):
     ValueError: If probability is outside of [0.0, 1.0].
   """
   if not 0 <= perror <= 1:
-    raise ValueError('perror must be between zero and one: {}'.format(perror))
+    raise ValueError(f'perror must be between zero and one: {perror}')
   return perror_to_log10_perror(max(perror, min_prob))
 
 
@@ -125,7 +125,7 @@ def ptrue_to_bounded_phred(ptrue, max_prob=_MAX_CONFIDENCE):
     ValueError: If ptrue is outside of [0.0, 1.0].
   """
   if not 0 <= ptrue <= 1:
-    raise ValueError('ptrue must be between zero and one: {}'.format(ptrue))
+    raise ValueError(f'ptrue must be between zero and one: {ptrue}')
   return perror_to_phred(1.0 - min(ptrue, max_prob))
 
 

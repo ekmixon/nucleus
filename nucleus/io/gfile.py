@@ -69,4 +69,4 @@ def Open(filename, mode="r"):
   elif mode.startswith("w"):
     return gfile.WritableFile.New(filename)
   else:
-    raise ValueError("Unsupported mode '{}' for Open".format(mode))
+    raise ValueError(f"Unsupported mode '{mode}' for Open")

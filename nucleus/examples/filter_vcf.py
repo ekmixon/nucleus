@@ -27,7 +27,7 @@ from nucleus.io import vcf
 
 def main(argv):
   if len(argv) != 3:
-    print('Usage: {} <input_vcf> <output_vcf>'.format(argv[0]))
+    print(f'Usage: {argv[0]} <input_vcf> <output_vcf>')
     sys.exit(-1)
   in_vcf = argv[1]
   out_vcf = argv[2]

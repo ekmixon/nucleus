@@ -118,7 +118,7 @@ class TFRecordWriter(GenomicsWriter):
     self._writer = tfrecord_writer.TFRecordWriter.from_file(
         output_path, compression_type)
     if self._writer is None:
-      raise IOError(errno.EIO, 'Error opening %s for writing' % output_path)
+      raise IOError(errno.EIO, f'Error opening {output_path} for writing')
 
   def write(self, proto):
     """Writes the proto to the TFRecord file."""
@@ -151,7 +151,7 @@ class DispatchingGenomicsWriter(GenomicsWriter):
         writer, if applicable.
     """
     super(DispatchingGenomicsWriter, self).__init__()
-    self.header = kwargs.get('header', None)
+    self.header = kwargs.get('header')
 
     if '.tfrecord' in output_path:
       self._writer = TFRecordWriter(output_path, header=self.header)

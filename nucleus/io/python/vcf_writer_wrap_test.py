@@ -269,7 +269,7 @@ class WrapVcfWriterRoundTripTests(parameterized.TestCase):
     # 3. Read back in using VcfReader -- v2;
     # 4. compare v1 and v2.
     in_file = test_utils.genomics_core_testdata(test_datum_name)
-    out_file = test_utils.test_tmpfile('output_' + test_datum_name)
+    out_file = test_utils.test_tmpfile(f'output_{test_datum_name}')
 
     v1_reader = vcf.VcfReader(in_file)
     v1_records = list(v1_reader.iterate())

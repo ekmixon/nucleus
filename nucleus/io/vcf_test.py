@@ -113,17 +113,12 @@ class VcfReaderTests(absltest.TestCase):
         test_utils.iterable_len(self.samples_reader.query(range1)), 4)
 
   def test_vcf_iter(self):
-    n = 0
-    for _ in self.sites_reader:
-      n += 1
+    n = sum(1 for _ in self.sites_reader)
     self.assertEqual(n, 5)
 
   def test_fail_multiple_concurrent_iterations(self):
     range1 = ranges.parse_literal('chr3:100,000-500,000')
     reads = self.samples_reader.query(range1)
-    for read in reads:
-      pass
-
     r2 = self.samples_reader.query(range1)
     with self.assertRaisesRegexp(ValueError, 'No underlying iterable. This '):
       next(r2)
@@ -173,7 +168,7 @@ def _format_expected_variant(ref, alts, format_spec, *samples):
 def _format_test_variant(alleles, call_infos):
   variant = test_utils.make_variant(chrom='20', start=0, alleles=alleles)
   for i, call_info in enumerate(call_infos):
-    call = variant.calls.add(call_set_name='sample' + str(i))
+    call = variant.calls.add(call_set_name=f'sample{str(i)}')
     for key, value in call_info.items():
       if not isinstance(value, (list, tuple)):
         value = [value]
@@ -393,13 +388,13 @@ class VcfRoundtripTests(parameterized.TestCase):
     expected = self.header + ''.join(expected_records)
     for info_map_pl in [False, True]:
       with vcf.VcfReader(
-          test_utils.genomics_core_testdata('test_py_roundtrip.vcf'),
-          excluded_info_fields=reader_excluded_info,
-          excluded_format_fields=reader_excluded_format,
-          store_gl_and_pl_in_info_map=info_map_pl) as reader:
+              test_utils.genomics_core_testdata('test_py_roundtrip.vcf'),
+              excluded_info_fields=reader_excluded_info,
+              excluded_format_fields=reader_excluded_format,
+              store_gl_and_pl_in_info_map=info_map_pl) as reader:
         records = list(reader.iterate())
         output_path = test_utils.test_tmpfile(
-            'test_roundtrip_tmpfile_{}.vcf'.format(info_map_pl))
+            f'test_roundtrip_tmpfile_{info_map_pl}.vcf')
         with vcf.VcfWriter(
             output_path,
             header=reader.header,
